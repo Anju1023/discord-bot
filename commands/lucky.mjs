@@ -101,7 +101,7 @@ export async function execute(interaction) {
 		)
 		.setColor('Random')
 		.setThumbnail(
-			'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbzR3eHRyZXNhd2ZyMm9vZXF6Z2sydzhxenJ4Z2s0eXVmMXA3b2o3dCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/jtgsfUIJJJwmcS9FQi/giphy.gif'
+			'https://i.imgur.com/qibO9dC.png'
 		)
 		.setFooter({
 			text: `今日が${username}にとっていい日になりますように〜〜( ơ ᴗ ơ )`,
