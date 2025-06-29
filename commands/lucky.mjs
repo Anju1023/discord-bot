@@ -92,7 +92,7 @@ export async function execute(interaction) {
 			{ name: '🎨 ラッキーカラー', value: pick(colors), inline: true },
 			{
 				name: '🔢 ラッキーナンバー',
-				value: pick(numbers).toString(),
+				value: numbers.toString(),
 				inline: true,
 			},
 			{ name: '🍰 ラッキーフード', value: pick(foods), inline: false },
