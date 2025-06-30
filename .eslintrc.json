@@ -1,0 +1,16 @@
+{
+	"env": {
+		"node": true
+	},
+	"overrides": [
+		{
+			"files": ["*.mjs"],
+			"env": {
+				"node": true
+			},
+			"parserOptions": {
+				"sourceType": "module"
+			}
+		}
+	]
+}
