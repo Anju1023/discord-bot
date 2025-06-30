@@ -7,10 +7,9 @@ import {
 	Collection,
 	GatewayIntentBits,
 } from 'discord.js';
-import path from 'path';
 import { config } from 'dotenv';
 import express from 'express';
-import messageCreate from './handlers/messageCreate.mjs';
+import { pathToFileURL } from 'url';
 config();
 
 const app = express();
@@ -28,6 +27,18 @@ app.listen(PORT, () => {
 const client = new Client({
 	intents: [GatewayIntentBits.Guilds],
 });
+
+const handlersPath = './handlers';
+const handlerFiles = fs
+	.readdirSync(handlersPath)
+	.filter((file) => file.endsWith('.mjs'));
+for (const file of handlerFiles) {
+	const eventName = file.replace('.mjs', '');
+	const filePath = pathToFileURL(`${handlersPath}/${file}`).href;
+	const eventModule = await import(filePath);
+
+	client.on(eventName, eventModule.default);
+}
 
 client.commands = new Collection();
 const commandFiles = fs
@@ -60,7 +71,6 @@ client.on('interactionCreate', async (interaction) => {
 	}
 });
 
-client.on('messageCreate', messageCreate);
 client.on('error', (error) => {
 	console.error('エラーが発生しました:', error);
 });
@@ -110,13 +120,15 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 		`メッセージが更新されました: ${oldMessage.content} -> ${newMessage.content} (ID: ${newMessage.id})`
 	);
 });
+
 client.on('ready', async () => {
-	await client.user.setActivity({
+	await client.user.setActivity('🍞', {
 		type: ActivityType.Custom,
 		state: '🍞をもぐもぐ中...',
 	});
 	console.log(`Botは${client.user.tag}としてログインしました`);
 });
+
 if (!process.env.TOKEN) {
 	console.error('環境変数 TOKEN が設定されていません。');
 	process.exit(1);
