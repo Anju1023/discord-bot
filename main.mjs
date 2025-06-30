@@ -55,10 +55,6 @@ for (const file of commandFiles) {
 	client.commands.set(command.data.name, command);
 }
 
-client.once('ready', () => {
-	console.log(`🟢 ログイン完了！${client.user.tag}`);
-});
-
 client.on('interactionCreate', async (interaction) => {
 	if (!interaction.isChatInputCommand()) return;
 
@@ -126,12 +122,12 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 	);
 });
 
-client.on('ready', async () => {
+client.once('ready', async () => {
 	await client.user.setActivity('🍞', {
 		type: ActivityType.Custom,
 		state: '🍞をもぐもぐ中...',
 	});
-	console.log(`Botは${client.user.tag}としてログインしました`);
+	console.log(`🟢 ログイン完了！${client.user.tag}`);
 });
 
 if (!process.env.TOKEN) {
