@@ -25,13 +25,18 @@ app.listen(PORT, () => {
 });
 
 const client = new Client({
-	intents: [GatewayIntentBits.Guilds],
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+	],
 });
 
 const handlersPath = './handlers';
 const handlerFiles = fs
 	.readdirSync(handlersPath)
 	.filter((file) => file.endsWith('.mjs'));
+
 for (const file of handlerFiles) {
 	const eventName = file.replace('.mjs', '');
 	const filePath = pathToFileURL(`${handlersPath}/${file}`).href;
