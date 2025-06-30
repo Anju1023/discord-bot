@@ -112,7 +112,6 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 });
 client.on('ready', async () => {
 	await client.user.setActivity({
-		name: '起きてるよ( ơ ᴗ ơ )',
 		type: ActivityType.Custom,
 		state: '🍞をもぐもぐ中...',
 	});
