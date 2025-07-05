@@ -29,7 +29,8 @@ async function getTodayUrgentTasks() {
 				and: [
 					{
 						property: '状態',
-						select: {
+						status: {
+							// ← selectからstatusに修正！
 							equals: '本日中対応',
 						},
 					},
