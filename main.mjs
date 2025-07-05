@@ -10,6 +10,8 @@ import {
 import { config } from 'dotenv';
 import express from 'express';
 import { pathToFileURL } from 'url';
+import { startTaskScheduler } from './utils/taskScheduler.mjs';
+
 config();
 
 const app = express();
@@ -128,6 +130,9 @@ client.once('ready', async () => {
 		state: '🍞をもぐもぐ中...',
 	});
 	console.log(`🟢 ログイン完了！${client.user.tag}`);
+
+	// タスクスケジューラー開始
+	startTaskScheduler(client);
 });
 
 if (!process.env.TOKEN) {
@@ -138,4 +143,23 @@ if (!process.env.CLIENT_ID) {
 	console.error('環境変数 CLIENT_ID が設定されていません。');
 	process.exit(1);
 }
+
+// Notion関連の環境変数チェック
+if (!process.env.NOTION_API_TOKEN) {
+	console.error('環境変数 NOTION_API_TOKEN が設定されていません。');
+	process.exit(1);
+}
+if (!process.env.NOTION_TASKS_DB_ID) {
+	console.error('環境変数 NOTION_TASKS_DB_ID が設定されていません。');
+	process.exit(1);
+}
+if (!process.env.NOTION_RECURRING_DB_ID) {
+	console.error('環境変数 NOTION_RECURRING_DB_ID が設定されていません。');
+	process.exit(1);
+}
+if (!process.env.DISCORD_CHANNEL_ID) {
+	console.error('環境変数 DISCORD_CHANNEL_ID が設定されていません。');
+	process.exit(1);
+}
+
 client.login(process.env.TOKEN);
