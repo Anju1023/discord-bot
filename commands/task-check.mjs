@@ -25,7 +25,7 @@ async function getTodayUrgentTasks() {
 				and: [
 					{
 						property: '状態',
-						select: {
+						status: {
 							equals: '本日中対応',
 						},
 					},
@@ -57,7 +57,7 @@ async function getRecurringTasks() {
 		const response = await notion.databases.query({
 			database_id: config.notion.databases.recurring,
 			filter: {
-				property: '', // 名前なし（空白）のチェックボックス
+				property: 'チェック',
 				checkbox: {
 					equals: false,
 				},
@@ -116,7 +116,9 @@ function createTaskEmbed(urgentTasks, recurringTasks) {
 
 	// タスクがない場合
 	if (urgentTasks.length === 0 && recurringTasks.length === 0) {
-		embed.setDescription('今日は未完了のタスクがないよ〜！お疲れさま！');
+		embed.setDescription(
+			'今日は未完了のタスクがないよ〜！お疲れさま！お疲れさま〜'
+		);
 		embed.setColor(0x4ecdc4);
 	}
 
@@ -148,6 +150,6 @@ export async function execute(interaction) {
 		console.log('✅ タスク通知を送信しました！');
 	} catch (error) {
 		console.error('❌ タスクチェックエラー:', error);
-		await interaction.followUp('エラーが出ちゃった〜(；-；)');
+		await interaction.followUp('エラーが出ちゃった〜');
 	}
 }

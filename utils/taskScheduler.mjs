@@ -61,7 +61,7 @@ async function getRecurringTasks() {
 		const response = await notion.databases.query({
 			database_id: config.notion.databases.recurring,
 			filter: {
-				property: '', // 名前なし（空白）のチェックボックス
+				property: 'チェック',
 				checkbox: {
 					equals: false,
 				},
@@ -120,7 +120,7 @@ function createTaskEmbed(urgentTasks, recurringTasks) {
 
 	// タスクがない場合
 	if (urgentTasks.length === 0 && recurringTasks.length === 0) {
-		embed.setDescription('今日は未完了のタスクがないよ〜！お疲れさま！(◍•ᴗ•◍)');
+		embed.setDescription('今日は未完了のタスクがないよ〜！お疲れさま〜');
 		embed.setColor(0x4ecdc4);
 	}
 
