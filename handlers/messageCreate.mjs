@@ -1,10 +1,82 @@
+import { callAI } from '../utils/aiHandler.mjs';
+
 export default async function messageCreate(message) {
 	if (message.author.bot || !message.guild) return;
 
 	const content = message.content.toLowerCase();
 
-	// AI返答は main.mjs で処理するので、ここではリアクション機能のみ
+	// AI返答処理
+	const botMentioned = message.mentions.has(message.client.user);
+	const anjuMentioned =
+		message.content.includes('@あんじゅちゃん') ||
+		message.content.includes('あんじゅちゃん');
 
+	if (botMentioned || anjuMentioned) {
+		try {
+			// メッセージから@部分を除去
+			const cleanMessage = message.content
+				.replace(/<@!?\d+>/g, '') // メンションを削除
+				.replace(/@あんじゅちゃん/g, '') // テキストメンションも削除
+				.replace(/あんじゅちゃん/g, '')
+				.trim();
+
+			if (!cleanMessage) {
+				await message.reply('なあに〜？(｡•ᴗ•｡)♡');
+				return;
+			}
+
+			// すぐに「考え中」メッセージを送信
+			const thinkingMessage = await message.reply('考え中だよ〜 ⏳');
+
+			try {
+				// タイピング表示
+				await message.channel.sendTyping();
+
+				// AI API呼び出し（タイムアウト設定付き）
+				const aiResponse = await Promise.race([
+					callAI(cleanMessage, {
+						userId: message.author.id,
+						username: message.author.displayName || message.author.username,
+						guildName: message.guild.name,
+					}),
+					new Promise((_, reject) => {
+						setTimeout(() => reject(new Error('タイムアウト')), 25000);
+					}),
+				]);
+
+				// 「考え中」メッセージを削除して返答
+				await thinkingMessage.delete();
+
+				// 2000文字制限対応
+				if (aiResponse.length > 2000) {
+					const chunks = aiResponse.match(/.{1,1900}/g) || [];
+					for (const chunk of chunks) {
+						await message.reply(chunk);
+					}
+				} else {
+					await message.reply(aiResponse);
+				}
+			} catch (apiError) {
+				console.error('AI API エラー:', apiError);
+
+				// 「考え中」メッセージを編集
+				await thinkingMessage.edit(
+					'ごめん〜、今ちょっと調子悪いみたい〜(´･ω･`)💦'
+				);
+			}
+		} catch (error) {
+			console.error('メッセージ処理エラー:', error);
+			try {
+				await message.reply('エラーが出ちゃった〜(; - ;)');
+			} catch (replyError) {
+				console.error('返信エラー:', replyError);
+			}
+		}
+
+		return; // AI処理が終わったらリアクション処理はスキップ
+	}
+
+	// リアクション処理（AI処理がなかった場合のみ）
 	const reactMaps = [
 		{ pattern: /こんにちは|やっほ|hello|hi|hey/i, emoji: '👋' },
 		{ pattern: /thanks|thank you|ありがとう|感謝/i, emoji: '🙏' },
