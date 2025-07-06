@@ -59,31 +59,14 @@ async function getTodayUrgentTasks() {
 // 繰り返しタスクを取得
 async function getRecurringTasks() {
 	try {
-		// チェックボックスのプロパティ名を動的に取得
-		const schema = await notion.databases.retrieve({
-			database_id: config.notion.databases.recurring,
-		});
-
-		const checkboxProp = Object.entries(schema.properties).find(
-			([_, prop]) => prop.type === 'checkbox'
-		);
-
-		if (!checkboxProp) {
-			console.error('チェックボックスプロパティが見つかりません');
-			return [];
-		}
-
-		const checkboxName = checkboxProp[0];
-
 		const response = await notion.databases.query({
 			database_id: config.notion.databases.recurring,
 			filter: {
-				property: checkboxName, // 動的に取得した名前を使用
+				property: 'チェック',
 				checkbox: {
 					equals: false,
 				},
 			},
-			page_size: 10, // 最大10件に制限
 		});
 
 		return response.results.map((page) => ({
@@ -146,7 +129,7 @@ function createTaskEmbed(urgentTasks, recurringTasks) {
 }
 
 // 通知を送信
-async function sendTaskNotification(client) {
+export async function sendTaskNotification(client) {
 	try {
 		console.log('タスク通知を準備中...');
 
