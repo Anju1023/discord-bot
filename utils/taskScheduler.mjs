@@ -62,7 +62,7 @@ async function getRecurringTasks() {
 		const response = await notion.databases.query({
 			database_id: config.notion.databases.recurring,
 			filter: {
-				property: 'チェック',
+				property: '完了',
 				checkbox: {
 					equals: false,
 				},
