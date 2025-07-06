@@ -120,18 +120,18 @@ async function callClaude(message, context, userId) {
 async function callOpenAI(message, context, userId) {
 	const history = getConversationHistory(userId);
 
-	// utils/aiHandler.mjs の callOpenAI 関数で
 	const messages = [
 		{
 			role: 'system',
 			content: createSystemPrompt(context),
 		},
-		// ...history,  ← この行をコメントアウト
+		...history,
 		{
 			role: 'user',
 			content: message,
 		},
 	];
+
 	const response = await fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'POST',
 		headers: {
@@ -140,9 +140,11 @@ async function callOpenAI(message, context, userId) {
 		},
 		body: JSON.stringify({
 			model: 'gpt-3.5-turbo',
-			max_tokens: 1000,
+			max_tokens: 500, // トークン数を減らして速度アップ
+			temperature: 0.8, // 少し創造性を上げる
 			messages: messages,
 		}),
+		signal: AbortSignal.timeout(20000), // 20秒でタイムアウト
 	});
 
 	if (!response.ok) {

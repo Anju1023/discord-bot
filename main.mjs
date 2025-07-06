@@ -11,7 +11,6 @@ import { config } from 'dotenv';
 import express from 'express';
 import { pathToFileURL } from 'url';
 import { startTaskScheduler } from './utils/taskScheduler.mjs';
-import { callAI } from './utils/aiHandler.mjs';
 
 config();
 
