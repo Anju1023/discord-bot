@@ -6,7 +6,6 @@ import {
 	Client,
 	Collection,
 	GatewayIntentBits,
-	InteractionResponseFlags,
 } from 'discord.js';
 import { config } from 'dotenv';
 import express from 'express';
@@ -77,7 +76,7 @@ client.on('interactionCreate', async (interaction) => {
 		console.error(error);
 		await interaction.reply({
 			content: 'エラーが出ちゃったあああ(; - ;)',
-			flags: InteractionResponseFlags.Ephemeral,
+			flags: 64,
 		});
 	}
 });
