@@ -56,13 +56,39 @@ async function getTodayUrgentTasks() {
 	}
 }
 
-// 繰り返しタスクを取得
+// 繰り返しタスクを取得（デバッグ版）
 async function getRecurringTasks() {
 	try {
+		// まずデータベースのスキーマを確認
+		const schema = await notion.databases.retrieve({
+			database_id: config.notion.databases.recurring,
+		});
+
+		console.log('繰り返しタスクDB プロパティ一覧:');
+		console.log(Object.keys(schema.properties));
+
+		// 各プロパティの詳細を表示
+		Object.entries(schema.properties).forEach(([key, prop]) => {
+			console.log(`- ${key}: ${prop.type}`);
+		});
+
+		// データを取得（チェックボックス名を動的に見つける）
+		const checkboxProp = Object.entries(schema.properties).find(
+			([key, prop]) => prop.type === 'checkbox' // keyをアンダースコアに変更
+		);
+
+		if (!checkboxProp) {
+			console.error('チェックボックスプロパティが見つかりません');
+			return [];
+		}
+
+		const checkboxName = checkboxProp[0];
+		console.log(`実際のチェックボックス名: "${checkboxName}"`);
+
 		const response = await notion.databases.query({
 			database_id: config.notion.databases.recurring,
 			filter: {
-				property: 'チェック',
+				property: checkboxName, // 実際の名前を使用
 				checkbox: {
 					equals: false,
 				},
@@ -160,11 +186,11 @@ async function sendTaskNotification(client) {
 export function startTaskScheduler(client) {
 	console.log('🕒 タスクスケジューラー開始！');
 
-	// 毎日朝9時に通知
+	// 朝8時半
 	cron.schedule(
-		'0 9 * * *',
+		'30 8 * * *',
 		() => {
-			console.log('⏰ 朝の定期通知実行中...');
+			console.log('⏰ 朝8時半の通知実行中...');
 			sendTaskNotification(client);
 		},
 		{
@@ -173,11 +199,50 @@ export function startTaskScheduler(client) {
 		}
 	);
 
-	// 夕方6時にも通知
+	// お昼12時
 	cron.schedule(
-		'0 18 * * *',
+		'0 12 * * *',
 		() => {
-			console.log('⏰ 夕方の定期通知実行中...');
+			console.log('⏰ お昼12時の通知実行中...');
+			sendTaskNotification(client);
+		},
+		{
+			scheduled: true,
+			timezone: 'Asia/Tokyo',
+		}
+	);
+
+	// 午後2時半
+	cron.schedule(
+		'30 14 * * *',
+		() => {
+			console.log('⏰ 午後2時半の通知実行中...');
+			sendTaskNotification(client);
+		},
+		{
+			scheduled: true,
+			timezone: 'Asia/Tokyo',
+		}
+	);
+
+	// 夕方5時半
+	cron.schedule(
+		'30 17 * * *',
+		() => {
+			console.log('⏰ 夕方5時半の通知実行中...');
+			sendTaskNotification(client);
+		},
+		{
+			scheduled: true,
+			timezone: 'Asia/Tokyo',
+		}
+	);
+
+	// 夜8時
+	cron.schedule(
+		'0 20 * * *',
+		() => {
+			console.log('⏰ 夜8時の通知実行中...');
 			sendTaskNotification(client);
 		},
 		{
