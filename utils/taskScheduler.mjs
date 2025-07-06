@@ -8,6 +8,13 @@ const notion = new NotionClient({
 	auth: process.env.NOTION_API_TOKEN,
 });
 
+// Notion API設定の確認
+if (!process.env.NOTION_API_TOKEN) {
+	console.warn(
+		'⚠️ NOTION_API_TOKENが設定されていません。Notion機能は無効になります。'
+	);
+}
+
 const config = {
 	notion: {
 		databases: {
@@ -212,6 +219,12 @@ function createTaskEmbed(urgentTasks, recurringTasks, updatedTasks = []) {
 export async function sendTaskNotification(client) {
 	try {
 		console.log('タスク通知を準備中...');
+
+		// チャンネルIDの確認
+		if (!config.discord.channelId) {
+			console.error('❌ DISCORD_CHANNEL_IDが設定されていません');
+			return;
+		}
 
 		// まず今日が締切のタスクを「本日中対応」に更新
 		const updatedTasks = await updateTodayTasks();
