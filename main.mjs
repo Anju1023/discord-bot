@@ -45,7 +45,12 @@ for (const file of handlerFiles) {
 	const filePath = pathToFileURL(`${handlersPath}/${file}`).href;
 	const eventModule = await import(filePath);
 
-	client.on(eventName, eventModule.default);
+	// 特別なハンドラー名の処理
+	if (eventName === 'aiMessageCreate') {
+		client.on('messageCreate', eventModule.default);
+	} else {
+		client.on(eventName, eventModule.default);
+	}
 }
 
 client.commands = new Collection();
@@ -58,55 +63,7 @@ for (const file of commandFiles) {
 	client.commands.set(command.data.name, command);
 }
 
-// AI返答機能を追加！
-client.on('messageCreate', async (message) => {
-	// Bot自身のメッセージは無視
-	if (message.author.bot || !message.guild) return;
-
-	// @あんじゅちゃん または @botmention で呼ばれた時だけAI返答
-	const botMentioned = message.mentions.has(client.user);
-	const anjuMentioned =
-		message.content.includes('@あんじゅちゃん') ||
-		message.content.includes('あんじゅちゃん');
-
-	if (botMentioned || anjuMentioned) {
-		try {
-			// メッセージから@部分を除去
-			const cleanMessage = message.content
-				.replace(/<@!?\d+>/g, '') // メンションを削除
-				.replace(/@あんじゅちゃん/g, '') // テキストメンションも削除
-				.replace(/あんじゅちゃん/g, '')
-				.trim();
-
-			if (!cleanMessage) {
-				await message.reply('なあに〜？(｡•ᴗ•｡)♡');
-				return;
-			}
-
-			// タイピング表示
-			await message.channel.sendTyping();
-
-			// AI API呼び出し
-			const aiResponse = await callAI(cleanMessage, {
-				username: message.author.displayName || message.author.username,
-				guildName: message.guild.name,
-			});
-
-			// 2000文字制限対応
-			if (aiResponse.length > 2000) {
-				const chunks = aiResponse.match(/.{1,1900}/g) || [];
-				for (const chunk of chunks) {
-					await message.reply(chunk);
-				}
-			} else {
-				await message.reply(aiResponse);
-			}
-		} catch (error) {
-			console.error('AI返答エラー:', error);
-			await message.reply('ごめん〜、今ちょっと考えがまとまらないの〜(´･ω･`)');
-		}
-	}
-});
+// messageCreateイベントは handlers で処理されるので削除
 
 client.on('interactionCreate', async (interaction) => {
 	if (!interaction.isChatInputCommand()) return;

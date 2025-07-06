@@ -1,22 +1,26 @@
 /* global process */
 
-// AI API統合ハンドラー
-// Claude API（Anthropic）とOpenAI API両対応！
+// 会話履歴を保存するMap（メモリ内）
+const conversationHistory = new Map();
+
+// 会話履歴の最大保持数
+const MAX_HISTORY = 10;
 
 /**
- * AI APIを呼び出して返答を取得
+ * AI APIを呼び出して返答を取得（会話履歴付き）
  * @param {string} message - ユーザーのメッセージ
  * @param {object} context - コンテキスト情報
  * @returns {Promise<string>} AI返答
  */
 export async function callAI(message, context = {}) {
 	const provider = process.env.AI_PROVIDER || 'claude';
+	const userId = context.userId || 'default';
 
 	try {
 		if (provider === 'claude') {
-			return await callClaude(message, context);
+			return await callClaude(message, context, userId);
 		} else if (provider === 'openai') {
-			return await callOpenAI(message, context);
+			return await callOpenAI(message, context, userId);
 		} else {
 			throw new Error(`未対応のAIプロバイダー: ${provider}`);
 		}
@@ -38,9 +42,49 @@ export async function callAI(message, context = {}) {
 }
 
 /**
- * Claude API（Anthropic）を呼び出し
+ * 会話履歴を取得
  */
-async function callClaude(message, context) {
+function getConversationHistory(userId) {
+	if (!conversationHistory.has(userId)) {
+		conversationHistory.set(userId, []);
+	}
+	return conversationHistory.get(userId);
+}
+
+/**
+ * 会話履歴を追加
+ */
+function addToHistory(userId, userMessage, aiResponse) {
+	const history = getConversationHistory(userId);
+
+	// 新しい会話を追加
+	history.push(
+		{ role: 'user', content: userMessage },
+		{ role: 'assistant', content: aiResponse }
+	);
+
+	// 履歴が長すぎる場合は古いものを削除
+	if (history.length > MAX_HISTORY * 2) {
+		history.splice(0, history.length - MAX_HISTORY * 2);
+	}
+
+	conversationHistory.set(userId, history);
+}
+
+/**
+ * Claude API（Anthropic）を呼び出し（履歴付き）
+ */
+async function callClaude(message, context, userId) {
+	const history = getConversationHistory(userId);
+
+	const messages = [
+		...history,
+		{
+			role: 'user',
+			content: message,
+		},
+	];
+
 	const response = await fetch('https://api.anthropic.com/v1/messages', {
 		method: 'POST',
 		headers: {
@@ -52,12 +96,7 @@ async function callClaude(message, context) {
 			model: 'claude-3-sonnet-20240229',
 			max_tokens: 1000,
 			system: createSystemPrompt(context),
-			messages: [
-				{
-					role: 'user',
-					content: message,
-				},
-			],
+			messages: messages,
 		}),
 	});
 
@@ -67,13 +106,32 @@ async function callClaude(message, context) {
 	}
 
 	const data = await response.json();
-	return data.content[0].text;
+	const aiResponse = data.content[0].text;
+
+	// 履歴に追加
+	addToHistory(userId, message, aiResponse);
+
+	return aiResponse;
 }
 
 /**
- * OpenAI API（ChatGPT）を呼び出し
+ * OpenAI API（ChatGPT）を呼び出し（履歴付き）
  */
-async function callOpenAI(message, context) {
+async function callOpenAI(message, context, userId) {
+	const history = getConversationHistory(userId);
+
+	const messages = [
+		{
+			role: 'system',
+			content: createSystemPrompt(context),
+		},
+		...history,
+		{
+			role: 'user',
+			content: message,
+		},
+	];
+
 	const response = await fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'POST',
 		headers: {
@@ -81,18 +139,9 @@ async function callOpenAI(message, context) {
 			Authorization: `Bearer ${process.env.AI_API_KEY}`,
 		},
 		body: JSON.stringify({
-			model: 'gpt-3.5-turbo', // または 'gpt-4'
+			model: 'gpt-3.5-turbo',
 			max_tokens: 1000,
-			messages: [
-				{
-					role: 'system',
-					content: createSystemPrompt(context),
-				},
-				{
-					role: 'user',
-					content: message,
-				},
-			],
+			messages: messages,
 		}),
 	});
 
@@ -102,7 +151,26 @@ async function callOpenAI(message, context) {
 	}
 
 	const data = await response.json();
-	return data.choices[0].message.content;
+	const aiResponse = data.choices[0].message.content;
+
+	// 履歴に追加
+	addToHistory(userId, message, aiResponse);
+
+	return aiResponse;
+}
+
+/**
+ * 会話履歴をリセット
+ */
+export function clearConversationHistory(userId) {
+	conversationHistory.delete(userId);
+}
+
+/**
+ * 全ユーザーの会話履歴をリセット
+ */
+export function clearAllConversationHistory() {
+	conversationHistory.clear();
 }
 
 /**
@@ -124,6 +192,7 @@ function createSystemPrompt(context) {
 【現在の状況】
 - ${guildName}というDiscordサーバーにいる
 - ${username}と話している
+- 会話の流れを覚えていて、前の話題を参考にして返答する
 - NotionのタスクデータベースやDiscordのメッセージリアクション機能も持っている
 
 【返答のルール】
@@ -132,8 +201,7 @@ function createSystemPrompt(context) {
 - 相手の名前は必要に応じて呼ぶ
 - あんじゅちゃんらしい可愛らしさを保つ
 - 困った時は素直に「わからない〜」と言って良い
-- ENFPのような明るく社交的な性格を保つ
-- 20代前半の女の子のように話す
+- 前の会話内容を覚えていて、それに関連した返答もできる
 
 返答は日本語で、あんじゅちゃんとしてキャラクターを保って答えてください。`;
 }
