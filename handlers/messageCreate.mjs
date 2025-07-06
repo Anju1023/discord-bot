@@ -3,17 +3,21 @@ export default async function messageCreate(message) {
 
 	const content = message.content.toLowerCase();
 
+	// AI返答は main.mjs で処理するので、ここではリアクション機能のみ
+
 	const reactMaps = [
 		{ pattern: /こんにちは|やっほ|hello|hi|hey/i, emoji: '👋' },
-		{ pattern: /thanks|thank you/i, emoji: '🙏' },
-		{ pattern: /goodbye|bye/i, emoji: '👋' },
-		{ pattern: /help|support/i, emoji: '❓' },
-		{ pattern: /congratulations|congrats/i, emoji: '🎉' },
-		{ pattern: /welcome/i, emoji: '🎉' },
-		{ pattern: /sorry|apology/i, emoji: '🙏' },
-		{ pattern: /yes|sure/i, emoji: '👍' },
-		{ pattern: /no|not sure/i, emoji: '👎' },
-		{ pattern: /maybe|perhaps/i, emoji: '🤔' },
+		{ pattern: /thanks|thank you|ありがとう|感謝/i, emoji: '🙏' },
+		{ pattern: /goodbye|bye|バイバイ|またね/i, emoji: '👋' },
+		{ pattern: /help|support|助けて/i, emoji: '❓' },
+		{ pattern: /congratulations|congrats|おめでとう/i, emoji: '🎉' },
+		{ pattern: /welcome|ようこそ/i, emoji: '🎉' },
+		{ pattern: /sorry|apology|ごめん|すみません/i, emoji: '🙏' },
+		{ pattern: /yes|sure|はい|うん/i, emoji: '👍' },
+		{ pattern: /no|not sure|いいえ|ちがう/i, emoji: '👎' },
+		{ pattern: /maybe|perhaps|たぶん|かも/i, emoji: '🤔' },
+
+		// 動物系
 		{ pattern: /にゃー|ねこ|ネコ|にゃん|cat/i, emoji: '🐱' },
 		{ pattern: /わんわん|いぬ|イヌ|犬|ワン|dog|wan/i, emoji: '🐶' },
 		{ pattern: /うさぎ|うさぎさん|うさちゃん/i, emoji: '🐰' },
@@ -25,31 +29,39 @@ export default async function messageCreate(message) {
 		{ pattern: /うま|馬/i, emoji: '🐴' },
 		{ pattern: /ぞう|象/i, emoji: '🐘' },
 		{ pattern: /きりん|キリン/i, emoji: '🦒' },
-		{ pattern: /さる|猿/i, emoji: '🐒'},
-		{ pattern: /しゅき|すき|好き/i, emoji: '💖' },
-		{ pattern: /おやすみ|ねむい/i, emoji: '🌙' },
-		{ pattern: /ぱん|パン|\bpan\b|\bbread\b/i, emoji: '🍞' },
-		{ pattern: /ぴえん|かなしい|うるうる/i, emoji: '🥺' },
-		{ pattern: /ぎゅ|ぎゅー|抱きしめ/i, emoji: '🤗' },
-		{ pattern: /おはよう|朝だ/i, emoji: '☀️' },
-		{ pattern: /わくわく|ドキドキ/i, emoji: '💓' },
-		{ pattern: /おいしい|うまっ|もぐもぐ/i, emoji: '🍰' },
+		{ pattern: /さる|猿/i, emoji: '🐒' },
 		{ pattern: /\btako\b|たこやき|タコ/i, emoji: '🐙' },
-		{ pattern: /たこ|タコ/i, emoji: '🐙' },
-		{ pattern: /おはよう|朝だ/i, emoji: '☀️' },
-		{ pattern: /おやすみ|ねむい/i, emoji: '🌙' },
-		{ pattern: /ありがとう|感謝/i, emoji: '🙏' },
-		{ pattern: /うれしい|嬉しい/i, emoji: '😊' },
-		{ pattern: /悲しい|かなしい/i, emoji: '😢' },
-		{ pattern: /楽しい|たのしい/i, emoji: '😄' },
-		{ pattern: /怒ってる|怒り/i, emoji: '😡' },
-		{ pattern: /びっくり|驚き/i, emoji: '😲' },
-		{ pattern: /眠い|ねむい/i, emoji: '😴' },
-		{ pattern: /かわいい|可愛い/i, emoji: '😍' },
-		{ pattern: /かっこいい|格好いい/i, emoji: '😎' },
-		{ pattern: /すごい|凄い/i, emoji: '🤩' },
+
+		// 感情系
+		{ pattern: /しゅき|すき|好き|love/i, emoji: '💖' },
+		{ pattern: /おやすみ|ねむい|眠い/i, emoji: '🌙' },
+		{ pattern: /ぴえん|かなしい|うるうる|悲しい/i, emoji: '🥺' },
+		{ pattern: /ぎゅ|ぎゅー|抱きしめ|hug/i, emoji: '🤗' },
+		{ pattern: /おはよう|朝だ|good morning/i, emoji: '☀️' },
+		{ pattern: /わくわく|ドキドキ|excited/i, emoji: '💓' },
+		{ pattern: /おいしい|うまっ|もぐもぐ|delicious/i, emoji: '🍰' },
+		{ pattern: /うれしい|嬉しい|happy/i, emoji: '😊' },
+		{ pattern: /楽しい|たのしい|fun/i, emoji: '😄' },
+		{ pattern: /怒ってる|怒り|angry/i, emoji: '😡' },
+		{ pattern: /びっくり|驚き|surprise/i, emoji: '😲' },
+		{ pattern: /かわいい|可愛い|cute/i, emoji: '😍' },
+		{ pattern: /かっこいい|格好いい|cool/i, emoji: '😎' },
+		{ pattern: /すごい|凄い|amazing/i, emoji: '🤩' },
+
+		// 食べ物系
+		{ pattern: /ぱん|パン|\bpan\b|\bbread\b/i, emoji: '🍞' },
+		{ pattern: /ケーキ|cake/i, emoji: '🍰' },
+		{ pattern: /ピザ|pizza/i, emoji: '🍕' },
+		{ pattern: /お寿司|寿司|sushi/i, emoji: '🍣' },
+		{ pattern: /ラーメン|ramen/i, emoji: '🍜' },
+
+		// あんじゅちゃん特別反応
+		{ pattern: /あんじゅ|anju/i, emoji: '💖' },
+		{ pattern: /かわいい.*bot|bot.*かわいい/i, emoji: '🥰' },
+		{ pattern: /頑張って|がんばって|ファイト/i, emoji: '💪' },
 	];
 
+	// リアクション処理（最初にマッチしたもののみ）
 	for (const { pattern, emoji } of reactMaps) {
 		if (pattern.test(content)) {
 			try {
