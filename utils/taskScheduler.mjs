@@ -150,7 +150,8 @@ function createTaskEmbed(urgentTasks, recurringTasks, updatedTasks = []) {
 		.setTitle('📋 今日のタスク通知')
 		.setColor(0xff6b6b)
 		.setTimestamp()
-		.setFooter({ text: '頑張って〜！✨' });
+		.setFooter({ text: '頑張って〜！✨' })
+		.setThumbnail('https://i.imgur.com/SVpspIG.png'); // あんじゅのかわいいタコちゃん！
 
 	// 自動更新されたタスク
 	if (updatedTasks.length > 0) {
