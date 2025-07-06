@@ -74,7 +74,7 @@ async function getRecurringTasks() {
 
 		// データを取得（チェックボックス名を動的に見つける）
 		const checkboxProp = Object.entries(schema.properties).find(
-			([key, prop]) => prop.type === 'checkbox' // keyをアンダースコアに変更
+			([_, prop]) => prop.type === 'checkbox' // keyをアンダースコアに変更
 		);
 
 		if (!checkboxProp) {
@@ -87,13 +87,21 @@ async function getRecurringTasks() {
 
 		const response = await notion.databases.query({
 			database_id: config.notion.databases.recurring,
-			filter: {
-				property: checkboxName, // 実際の名前を使用
-				checkbox: {
-					equals: false,
-				},
-			},
+			// フィルターを一時的に外してテスト
 		});
+
+		console.log(`取得したレコード数: ${response.results.length}`);
+
+		// 最初の1件のプロパティ構造を確認
+		if (response.results.length > 0) {
+			const firstRecord = response.results[0];
+			console.log('最初のレコードのプロパティ:');
+			console.log(Object.keys(firstRecord.properties));
+
+			// チェックボックスの値を確認
+			const checkboxValue = firstRecord.properties[checkboxName];
+			console.log(`チェックボックスの値:`, checkboxValue);
+		}
 
 		return response.results.map((page) => ({
 			title:
