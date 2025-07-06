@@ -25,15 +25,6 @@ for (const file of commandFiles) {
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
-// AIの新機能を説明するコマンドも追加
-const aiHelpCommand = {
-	name: 'ai-help',
-	description: 'あんじゅちゃんのAI機能について説明するよ〜！',
-	type: 1, // CHAT_INPUT
-};
-
-commands.push(aiHelpCommand);
-
 try {
 	console.log('🔃 Discord APIにコマンド登録中...');
 	console.log(`📝 登録するコマンド数: ${commands.length}`);
