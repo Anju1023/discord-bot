@@ -56,47 +56,19 @@ async function getTodayUrgentTasks() {
 	}
 }
 
-// 繰り返しタスクを取得（デバッグ版）
+// 繰り返しタスクを取得
 async function getRecurringTasks() {
 	try {
-		// まずデータベースのスキーマを確認
-		const schema = await notion.databases.retrieve({
-			database_id: config.notion.databases.recurring,
-		});
-
-		console.log('繰り返しタスクDB プロパティ一覧:');
-		console.log(Object.keys(schema.properties));
-
-		// 各プロパティの詳細を表示
-		Object.entries(schema.properties).forEach(([key, prop]) => {
-			console.log(`- ${key}: ${prop.type}`);
-		});
-
-		// データを取得（チェックボックス名を動的に見つける）
-		const checkboxProp = Object.entries(schema.properties).find(
-			([_, prop]) => prop.type === 'checkbox' // keyをアンダースコアに変更
-		);
-
-		if (!checkboxProp) {
-			console.error('チェックボックスプロパティが見つかりません');
-			return [];
-		}
-
-		const checkboxName = checkboxProp[0];
-		console.log(`実際のチェックボックス名: "${checkboxName}"`);
-
 		const response = await notion.databases.query({
 			database_id: config.notion.databases.recurring,
 			filter: {
-				property: checkboxName,
+				property: 'チェック',
 				checkbox: {
 					equals: false,
 				},
 			},
 			page_size: 10, // 最大10件に制限
 		});
-
-		console.log(`未完了の繰り返しタスク: ${response.results.length}件`);
 
 		return response.results.map((page) => ({
 			title:
