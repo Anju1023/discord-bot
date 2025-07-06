@@ -87,21 +87,16 @@ async function getRecurringTasks() {
 
 		const response = await notion.databases.query({
 			database_id: config.notion.databases.recurring,
-			// フィルターを一時的に外してテスト
+			filter: {
+				property: checkboxName,
+				checkbox: {
+					equals: false,
+				},
+			},
+			page_size: 10, // 最大10件に制限
 		});
 
-		console.log(`取得したレコード数: ${response.results.length}`);
-
-		// 最初の1件のプロパティ構造を確認
-		if (response.results.length > 0) {
-			const firstRecord = response.results[0];
-			console.log('最初のレコードのプロパティ:');
-			console.log(Object.keys(firstRecord.properties));
-
-			// チェックボックスの値を確認
-			const checkboxValue = firstRecord.properties[checkboxName];
-			console.log(`チェックボックスの値:`, checkboxValue);
-		}
+		console.log(`未完了の繰り返しタスク: ${response.results.length}件`);
 
 		return response.results.map((page) => ({
 			title:
