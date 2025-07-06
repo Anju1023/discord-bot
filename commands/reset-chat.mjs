@@ -14,7 +14,7 @@ export async function execute(interaction) {
 
 		await interaction.reply({
 			content: '会話履歴をリセットしたよ〜！また最初から話そうね〜( ˶>ᴗ<˶)✨',
-			flags: InteractionResponseFlags.Ephemeral, // ← ここを変更！
+			flags: InteractionResponseFlags.Ephemeral,
 		});
 
 		console.log(`💭 ${interaction.user.tag} の会話履歴をリセットしました`);
@@ -22,7 +22,7 @@ export async function execute(interaction) {
 		console.error('会話履歴リセットエラー:', error);
 		await interaction.reply({
 			content: 'あれ〜、リセットに失敗しちゃった〜(´･ω･`)💦',
-			flags: InteractionResponseFlags.Ephemeral, // ← ここも変更！
+			flags: InteractionResponseFlags.Ephemeral,
 		});
 	}
 }
