@@ -120,18 +120,18 @@ async function callClaude(message, context, userId) {
 async function callOpenAI(message, context, userId) {
 	const history = getConversationHistory(userId);
 
+	// utils/aiHandler.mjs の callOpenAI 関数で
 	const messages = [
 		{
 			role: 'system',
 			content: createSystemPrompt(context),
 		},
-		...history,
+		// ...history,  ← この行をコメントアウト
 		{
 			role: 'user',
 			content: message,
 		},
 	];
-
 	const response = await fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'POST',
 		headers: {
