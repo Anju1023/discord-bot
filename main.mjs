@@ -118,6 +118,9 @@ const requiredEnvVars = [
 	'NOTION_TASKS_DB_ID',
 	'NOTION_RECURRING_DB_ID',
 	'DISCORD_CHANNEL_ID',
+	'NODE_ENV',
+	'PORT',
+	'TZ',
 ];
 
 for (const envVar of requiredEnvVars) {
