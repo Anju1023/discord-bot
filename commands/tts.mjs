@@ -19,11 +19,17 @@ export const data = new SlashCommandBuilder()
 			.setDescription('声の種類（話者ID）')
 			.setRequired(false)
 			.addChoices(
-				{ name: 'あんじゅちゃん風（四国めたん）', value: 2 },
-				{ name: 'かわいい系（ずんだもん）', value: 3 },
-				{ name: 'お姉さん系（春日部つむぎ）', value: 8 },
-				{ name: 'ボーイッシュ（雨晴はう）', value: 10 },
-				{ name: 'おっとり（波音リツ）', value: 9 }
+				// 人気上位＆安全なデフォルト
+				{ name: 'ずんだもん（ノーマル）', value: 3 },
+				{ name: 'ずんだもん（あまあま）', value: 1 },
+				{ name: '四国めたん（ノーマル）', value: 2 },
+				{ name: '四国めたん（あまあま）', value: 0 },
+				{ name: '春日部つむぎ', value: 8 },
+				{ name: '波音リツ', value: 9 },
+				{ name: '雨晴はう', value: 10 },
+				{ name: '九州そら（ノーマル）', value: 16 },
+				{ name: '冥鳴ひまり', value: 14 },
+				{ name: 'WhiteCUL（びえーん）', value: 26 }
 			)
 	);
 
