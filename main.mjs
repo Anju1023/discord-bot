@@ -14,6 +14,22 @@ import { startTaskScheduler } from './utils/taskScheduler.mjs';
 
 config();
 
+console.log(
+	'Loaded env:',
+	Object.fromEntries(
+		Object.entries(process.env).filter(
+			([k]) =>
+				k.startsWith('TOKEN') ||
+				k.startsWith('CLIENT_ID') ||
+				k.startsWith('NOTION') ||
+				k.startsWith('AI_') ||
+				k.startsWith('DISCORD') ||
+				k === 'PORT' ||
+				k === 'TZ'
+		)
+	)
+);
+
 const app = express();
 
 const PORT = process.env.PORT || 3000;
@@ -131,6 +147,7 @@ for (const envVar of requiredEnvVars) {
 	}
 }
 
-client.login(process.env.TOKEN)
-  .then(() => console.log('Discord login: success'))
-  .catch((e) => console.error('Discord login error:', e));
+client
+	.login(process.env.TOKEN)
+	.then(() => console.log('Discord login: success'))
+	.catch((e) => console.error('Discord login error:', e));
