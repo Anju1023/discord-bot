@@ -42,6 +42,9 @@ app.listen(PORT, () => {
 	console.log(`🌐 Webサーバー起動！ポート: ${PORT}`);
 });
 
+console.log('Webサーバー起動！の直後だよ');
+console.log('Discord Client作るよ');
+
 const client = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
@@ -121,6 +124,14 @@ client.once('ready', async () => {
 	});
 	console.log(`🟢 ログイン完了！${client.user.tag}`);
 
+	console.log('Discordクライアント初期化');
+	console.log('client.login前: TOKEN=', process.env.TOKEN);
+	client
+		.login(process.env.TOKEN)
+		.then(() => console.log('Discord login: success'))
+		.catch((e) => console.error('Discord login error:', e));
+	console.log('client.login呼び出し直後');
+
 	// タスクスケジューラー開始
 	startTaskScheduler(client);
 });
@@ -139,6 +150,15 @@ const requiredEnvVars = [
 	'PORT',
 	'TZ',
 ];
+
+console.log('環境変数チェック前');
+for (const envVar of requiredEnvVars) {
+	if (!process.env[envVar]) {
+		console.error(`環境変数 ${envVar} が設定されていません。`);
+		process.exit(1);
+	}
+}
+console.log('環境変数チェック完了');
 
 for (const envVar of requiredEnvVars) {
 	if (!process.env[envVar]) {
