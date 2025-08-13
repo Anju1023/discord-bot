@@ -131,4 +131,6 @@ for (const envVar of requiredEnvVars) {
 	}
 }
 
-client.login(process.env.TOKEN);
+client.login(process.env.TOKEN)
+  .then(() => console.log('Discord login: success'))
+  .catch((e) => console.error('Discord login error:', e));
